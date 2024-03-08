@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Faster identification of faster Formula 1 drivers via time-rank duality",
+    "section": "",
+    "text": "This page contains the R code and data to reproduce the statistical analysis in the paper [1] named Faster identification of faster Formula 1 drivers via time-rank duality by John Fry, Tom Brighton and Silvio Fanzon.\nThe code should be simple to understand and comments are provided throughout. For a deeper understanding of the ranking model proposed, and the underlying mathematical analysis, please refer to the paper [1].\nYou are free to use and modify the code in accordance with the license CC BY-NC 4.0. We kindly ask our work is credited by citing the paper [1]. You can download the Bibdesk citation here."
+  },
+  {
+    "objectID": "index.html#introduction",
+    "href": "index.html#introduction",
+    "title": "Faster identification of faster Formula 1 drivers via time-rank duality",
+    "section": "",
+    "text": "This page contains the R code and data to reproduce the statistical analysis in the paper [1] named Faster identification of faster Formula 1 drivers via time-rank duality by John Fry, Tom Brighton and Silvio Fanzon.\nThe code should be simple to understand and comments are provided throughout. For a deeper understanding of the ranking model proposed, and the underlying mathematical analysis, please refer to the paper [1].\nYou are free to use and modify the code in accordance with the license CC BY-NC 4.0. We kindly ask our work is credited by citing the paper [1]. You can download the Bibdesk citation here."
+  },
+  {
+    "objectID": "index.html#the-data",
+    "href": "index.html#the-data",
+    "title": "Faster identification of faster Formula 1 drivers via time-rank duality",
+    "section": "The data",
+    "text": "The data\nData used for the statistical analysis in the paper [1] can be downloaded here. The latter contains placements of 20 pilots for the 25??? races in the 2022 F1 Season."
+  },
+  {
+    "objectID": "index.html#the-r-code",
+    "href": "index.html#the-r-code",
+    "title": "Faster identification of faster Formula 1 drivers via time-rank duality",
+    "section": "The R code",
+    "text": "The R code\nThe code given below reproduces the statistical analysis in the paper [1]. The code is mix of R scripts and interactive R console work.\n\nRequirements\nThe code runs in R version 4.3.3 and above with no additional packages.\n\n\nFunctions\nThe following function does …\n\n#input is the vector of win probabilities\n#output is the estimated lambda values\n\nlambdaest4 &lt;- function(x){\n\ninput &lt;- c(0.031655049, 0.031655049, 0.673389233, 0.063310099, \n           0.031655049, 0.028380389, 0.063310099, 0.048413605, \n           0.001642777, 0.001642777, 0.01016088, 0.001642777, \n           0.001642777, 0.001642777, 0.001642777, 0.001642777, \n           0.001642777, 0.001642777, 0.001642777, 0.001642777)\n\n#given 7 input values\n\ntarget&lt;-sort(input)\nlambda&lt;-rep(c(x[1], x[2], x[3], x[4], x[5], x[6], x[7]), \n            rle(target)$lengths)\n\n#lambda&lt;-c(x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[9], x[10], x[10], x[10], x[10], x[10], x[10], x[10], x[10], x[10], x[10])\n\npred &lt;- lambda / sum(lambda)\ndistance &lt;- sum( (target - pred )^2 )\n\nreturn(distance)\n\n}"
+  },
+  {
+    "objectID": "index.html#license-attribution",
+    "href": "index.html#license-attribution",
+    "title": "Faster identification of faster Formula 1 drivers via time-rank duality",
+    "section": "License & Attribution",
+    "text": "License & Attribution\n\nThis work is licensed under Creative Commons Attribution-NonCommercial 4.0 International License\n\n\n\n\nThis license enables reusers to distribute, remix, adapt, and build upon the material in any medium or format for noncommercial purposes only, and only so long as attribution is given to the creator. We kindly ask our work is credited by citing the paper [1] as shown below\n\nFry, John and Brighton, Tom and Fanzon, Silvio. Faster identification of faster Formula 1 drivers via time-rank duality, Preprint arXiv.2312.14637. (2024)\nhttps://doi.org/10.48550/arXiv.2312.14637\n\nBibTex citation: Download here or copy from box below\n@article{2024-Fry-Bri-Fan,\n  author = {Fry, John and Brighton, Tom and Fanzon, Silvio},\n  title = {Faster identification of faster Formula 1 drivers via \n           time-rank duality},\n  journal = {Preprint},\n  year = {2024},\n  doi = {10.48550/arXiv.2312.14637}\n}"
+  }
+]
