@@ -63,6 +63,14 @@ the paper [@f1-paper]. The code is mix of R scripts and interactive R console wo
 The code runs in [R version 4.3.3](https://www.r-project.org) and above with
 no additional packages.
 
+### Goal
+
+Two natural ways of modelling Formula 1 race outcomes are a probabilistic approach, based on the exponential distribution, and econometric modelling of the ranks. 
+Both approaches lead to exactly soluble race-winning probabilities. Equating race-winning probabilities leads to a set of equivalent parametrisations. 
+This time-rank duality is attractive theoretically and leads to quicker ways of dis-entangling driver and car level eﬀects
+
+
+
 ### Functions
 
 The following function does ...
