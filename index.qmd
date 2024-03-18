@@ -25,7 +25,7 @@ author:
   
 
   
-date: 2024-03-08 
+date: 2024-03-18 
 # To enter today's date replace by today
 # Enter date formatted as dd MM yyyy
 date-format: "D MMM YYYY"
@@ -39,81 +39,229 @@ This page contains the R code and data to reproduce the statistical analysis in
 the paper [@f1-paper] named **Faster identification of faster Formula 1 drivers via time-rank duality** by John Fry, Tom Brighton and Silvio Fanzon.
 
 The code should be simple to understand and comments are provided throughout.
-For a deeper understanding of the ranking model proposed, and the underlying mathematical analysis, please refer to the paper [@f1-paper]. 
+For a deeper understanding of the ranking model proposed, and the underlying statistical analysis, please refer to the paper [@f1-paper]. 
 
 You are free to use and modify the code in accordance with the license 
 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
 We kindly ask our work is credited by citing the paper [@f1-paper]. 
-You can download the Bibdesk citation [here](citation.bib). 
+You can download the BibTeX citation [here](citation.bib). 
 
 
 
 
 ## The data
 
-Data used for the statistical analysis in the paper [@f1-paper] can be downloaded [here](data/f1seconddata.txt). The latter contains placements of 20 pilots for the **25??? races** in the 2022 F1 Season. 
+Data used for the statistical analysis in the paper [@f1-paper] can be downloaded [here](data/f1seconddata.txt). The latter contains placements of 20 drivers for the 22 races in the 2022 F1 Season plus 3 sprint races ([Source](https://en.wikipedia.org/wiki/2022_Formula_One_World_Championship)).
 
 
 ## The R code 
 
-The code given below reproduces the statistical analysis in 
+The annotated R code given below reproduces the statistical analysis in 
 the paper [@f1-paper]. The code is mix of R scripts and interactive R console work.
 
-### Requirements
 The code runs in [R version 4.3.3](https://www.r-project.org) and above with
 no additional packages.
 
-### Goal
-
-Two natural ways of modelling Formula 1 race outcomes are a probabilistic approach, based on the exponential distribution, and econometric modelling of the ranks. 
-Both approaches lead to exactly soluble race-winning probabilities. Equating race-winning probabilities leads to a set of equivalent parametrisations. 
-This time-rank duality is attractive theoretically and leads to quicker ways of dis-entangling driver and car level eﬀects
 
 
+### Calibration with bookmakers’ odds
 
-### Functions
+The first R function listed below is used to minimise the residual sum of squares between the implied probabilities obtained from bookmakers odds and the win probabilities written as a function of the lambda values. The input is a parameter of lambda values. The dimension of the input vector is the number of unique bookmakers odds. This is an important constraint that needs to be obeyed. Imposing this constraint also improves the speed and smoothness of the computation. The function is then run in conjunction with the ``optim`` command in R to perform the minimisation. Please see below.
 
-The following function does ...
 
 ```r
-
 #input is the vector of win probabilities
 #output is the estimated lambda values
 
 lambdaest4 <- function(x){
 
-input <- c(0.031655049, 0.031655049, 0.673389233, 0.063310099, 
-           0.031655049, 0.028380389, 0.063310099, 0.048413605, 
-           0.001642777, 0.001642777, 0.01016088, 0.001642777, 
-           0.001642777, 0.001642777, 0.001642777, 0.001642777, 
-           0.001642777, 0.001642777, 0.001642777, 0.001642777)
+  input <- c(0.031655049, 0.031655049, 0.673389233, 0.063310099, 
+             0.031655049, 0.028380389, 0.063310099, 0.048413605, 
+             0.001642777, 0.001642777, 0.01016088, 0.001642777, 
+             0.001642777, 0.001642777, 0.001642777, 0.001642777, 
+             0.001642777, 0.001642777, 0.001642777, 0.001642777)
 
-#given 7 input values
+  #given 7 input values
 
-target<-sort(input)
-lambda<-rep(c(x[1], x[2], x[3], x[4], x[5], x[6], x[7]), 
-            rle(target)$lengths)
+  target<-sort(input)
+  lambda<-rep(c(x[1], x[2], x[3], x[4], x[5], x[6], x[7]), 
+              rle(target)$lengths)
 
-#lambda<-c(x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[9], x[10], x[10], x[10], x[10], x[10], x[10], x[10], x[10], x[10], x[10])
+  
+  pred <- lambda / sum(lambda)
+  distance <- sum( (target - pred )^2 )
 
-pred <- lambda / sum(lambda)
-distance <- sum( (target - pred )^2 )
-
-return(distance)
-
+  return(distance)
 }
 ```
+
+
+```r
+x1
+[1] 0.0004205564 0.0026012171 0.0072654675 0.0081037902 0.0123940343
+[6] 0.0162075831 0.1723897481
+> optim(x1, lambdaest4, control=list(maxit=10000))
+$par
+[1] 0.0004205564 0.0026012171 0.0072654675 0.0081037902 0.0123940343
+[6] 0.0162075831 0.1723897481
+```
+
+
+### Regression estimation
+
+The regression analysis in the paper proceeds via stepwise regression. Useful background can be found in Fry and Burke [@fry-burke]. However, in sharp contrast to the standard regression examples in Fry and Burke [@fry-burke], a constraint is made so that all considered models have to include the ``driverorder2`` dummy variable distinguishing between teams’ first and second drivers. 
+
+The following R code reads in the data on drivers placements found [here](data/f1seconddata.txt). Then it assigns variables and then runs a set of stepwise, forwards and backwards regressions. 
+
+
+```r
+f1seconddata <- read.table("F:f1seconddata.txt")
+position <- f1seconddata[ , -1]
+positionlabel <- c(position[,1], position[,2], position[,3], 
+                   position[,4], position[,5], position[,6], 
+                   position[,7], position[,8], position[,9], 
+                   position[,10], position[,11], position[,12], 
+                   position[,13], position[,14], position[,15], 
+                   position[,16], position[,17], position[,18], 
+                   position[,19], position[,20], position[,21], 
+                   position[,22], position[,23], position[,24], 
+                   position[,25])
+
+#Parameterise in terms of first driver, second driver
+driverorder <- rep(c(1, 2), 10)
+driverorder< - rep(driverorder, 25)
+
+#Re-coded the driver dummy variable to lie between 0 and 1
+driverorder2 <- driverorder - 1
+constructors <- rep(c("Mercedes", "RedBull", "Ferrari", "Mclaren", 
+                      "Alpine", "AstonMartin", "Haas", "AlfaTauri", 
+                      "AlfaRomeo", "Williams"), 
+                      c(2, 2, 2, 2, 2, 2, 2, 2, 2, 2))
+constructors <- rep(constructors, 25)
+
+mercedesdummy <- 1 * (constructors == "Mercedes")
+redbulldummy <-1 * (constructors == "RedBull")
+ferraridummy <- 1 * (constructors == "Ferrari")
+mclarendummy <- 1 * (constructors == "Mclaren")
+alpinedummy <- 1 * (constructors == "Alpine")
+astonmartindummy <- 1 * (constructors == "AstonMartin")
+haasdummy <- 1 * (constructors == "Haas")
+alfatauridummy <- 1 * (constructors == "AlfaTauri")
+alfaromeodummy <- 1 * (constructors == "AlfaRomeo")
+
+full2.lm <- lm(formula = positionlabel ~ driverorder2 + mercedesdummy
+               + redbulldummy + ferraridummy + mclarendummy 
+               + alpinedummy + astonmartindummy + haasdummy 
+               + alfatauridummy + alfaromeodummy)
+
+b.lm <- lm(positionlabel ~ driverorder2)
+
+#Stepwise regression
+step(b.lm, 
+    scope = list(
+    lower = formula(b.lm), 
+    upper = formula(full2.lm)), 
+    direction = "both")
+
+stepwise.lm <- lm(formula = positionlabel ~ driverorder2 + redbulldummy 
+                  + mercedesdummy + ferraridummy + mclarendummy 
+                  + alpinedummy + astonmartindummy)
+
+#Forward selection
+step(b.lm, 
+     scope = list(
+     lower = formula(b.lm), 
+     upper = formula(full2.lm)), 
+     direction = "forward")
+
+stepforward.lm <- lm(formula = positionlabel ~ driverorder2 
+                     + redbulldummy + mercedesdummy + ferraridummy 
+                     + mclarendummy + alpinedummy + astonmartindummy)
+
+#Backard selection
+step(full2.lm, 
+    scope = list(
+    lower = formula(b.lm), 
+    upper = formula(full2.lm)), 
+    direction = "backward")
+
+stepback.lm <- lm(formula = positionlabel ~ driverorder2 
+                  + mercedesdummy + redbulldummy + ferraridummy 
+                  + mclarendummy  + alpinedummy + astonmartindummy 
+                  + haasdummy + alfatauridummy + alfaromeodummy)
+```
+
+At this juncture it becomes clear that forwards and stepwise regression choose the same model. 
+Backwards regression leads to a model with additional variables in it. 
+The following R code suggests that the larger model does not lead to a significant improvement 
+over the smaller model chosen by stepwise regression. 
+
+```r
+anova(stepwise.lm, stepback.lm, test = "F")
+```
+
+```verbatim
+Analysis of Variance Table
+
+Model 1: positionlabel ~ driverorder2 + redbulldummy + mercedesdummy + 
+    ferraridummy + mclarendummy + alpinedummy + astonmartindummy
+Model 2: positionlabel ~ driverorder2 + mercedesdummy + redbulldummy + 
+    ferraridummy + mclarendummy + alpinedummy + astonmartindummy + 
+    haasdummy + alfatauridummy + alfaromeodummy
+  Res.Df     RSS Df Sum of Sq      F  Pr(>F)  
+1    492 10117.4                              
+2    489  9978.1  3     139.3 2.2756 0.07903 .
+```
+
+
+
+The following R code now presents the regression results presented in Table 3  of the paper.
+
+
+```r
+summary(stepwise.lm)
+```
+
+
+```verbatim
+Call:
+lm(formula = positionlabel ~ driverorder2 + redbulldummy + mercedesdummy + 
+    ferraridummy + mclarendummy + alpinedummy + astonmartindummy)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-9.058 -3.192 -1.058  2.517 15.592 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       13.8420     0.3794  36.484  < 2e-16 ***
+driverorder2       0.2160     0.4056   0.533   0.5946    
+redbulldummy      -9.6500     0.7170 -13.459  < 2e-16 ***
+mercedesdummy     -8.2700     0.7170 -11.534  < 2e-16 ***
+ferraridummy      -7.6900     0.7170 -10.725  < 2e-16 ***
+mclarendummy      -3.5500     0.7170  -4.951 1.02e-06 ***
+alpinedummy       -3.5500     0.7170  -4.951 1.02e-06 ***
+astonmartindummy  -1.7900     0.7170  -2.496   0.0129 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 4.535 on 492 degrees of freedom
+Multiple R-squared:  0.3914,    Adjusted R-squared:  0.3828 
+F-statistic: 45.21 on 7 and 492 DF,  p-value: < 2.2e-16
+```
+
+
 
 
 ## License & Attribution
 
 
-::: {.column width="60%"}
+::: {.column width="65%"}
 This work is licensed under [Creative Commons Attribution-NonCommercial 4.0 International License](https://creativecommons.org/licenses/by-nc/4.0/)
 :::
 
 
-::: {.column width="38%"}
+::: {.column width="30%"}
 ![](/by-nc.png){width=2.1in}
 :::
 
