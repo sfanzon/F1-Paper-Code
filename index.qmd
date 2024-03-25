@@ -96,12 +96,24 @@ lambdaest4 <- function(x){
 ```
 
 
+To optimize ``lambdaest4`` we run ``optim`` on a set of randomly generated values. After 
+careful randomized restarts, a local minimizer is found to be
+
+
 ```r
 x1
+```
+```verbatim
 [1] 0.0004205564 0.0026012171 0.0072654675 0.0081037902 0.0123940343
 [6] 0.0162075831 0.1723897481
-> optim(x1, lambdaest4, control=list(maxit=10000))
-$par
+```
+
+As proof of concept that ``x1`` is a local minimizer we run ``optim`` starting at ``x1``
+
+```r
+optim(x1, lambdaest4, control=list(maxit=10000))$par
+```
+```verbatim
 [1] 0.0004205564 0.0026012171 0.0072654675 0.0081037902 0.0123940343
 [6] 0.0162075831 0.1723897481
 ```
@@ -271,8 +283,8 @@ the material in any medium or format for noncommercial purposes only,
 and only so long as attribution is given to the creator. 
 We kindly ask our work is credited by citing the paper [@f1-paper] as shown below
 
-> Fry, John and Brighton, Tom and Fanzon, Silvio. *Faster identification of faster Formula 1 drivers via time-rank duality*, Preprint arXiv.2312.14637. (2024)  
-[https://doi.org/10.48550/arXiv.2312.14637](https://doi.org/10.48550/arXiv.2312.14637)
+> Fry, John and Brighton, Tom and Fanzon, Silvio. *Faster identification of faster Formula 1 drivers via time-rank duality*, Economics Letters, Forthcoming (2024)  
+[https://doi.org/10.1016/j.econlet.2024.111671](https://doi.org/10.1016/j.econlet.2024.111671)
 
 
 **BibTex citation:** Download [here](citation.bib) or copy from box below
@@ -283,9 +295,9 @@ We kindly ask our work is credited by citing the paper [@f1-paper] as shown belo
   author = {Fry, John and Brighton, Tom and Fanzon, Silvio},
   title = {Faster identification of faster Formula 1 drivers via 
            time-rank duality},
-  journal = {Preprint},
+  journal = {Economics Letters},
   year = {2024},
-  doi = {10.48550/arXiv.2312.14637}
+  doi = {10.1016/j.econlet.2024.111671}
 }
 ```
 
