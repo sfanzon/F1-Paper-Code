@@ -283,7 +283,7 @@ the material in any medium or format for noncommercial purposes only,
 and only so long as attribution is given to the creator. 
 We kindly ask our work is credited by citing the paper [@f1-paper] as shown below
 
-> Fry, John and Brighton, Tom and Fanzon, Silvio. *Faster identification of faster Formula 1 drivers via time-rank duality*, Economics Letters, Forthcoming (2024)  
+> Fry, John and Brighton, Tom and Fanzon, Silvio. *Faster identification of faster Formula 1 drivers via time-rank duality*, Economics Letters, 237:111671, 2024  
 [https://doi.org/10.1016/j.econlet.2024.111671](https://doi.org/10.1016/j.econlet.2024.111671)
 
 
@@ -296,6 +296,8 @@ We kindly ask our work is credited by citing the paper [@f1-paper] as shown belo
   title = {Faster identification of faster Formula 1 drivers via 
            time-rank duality},
   journal = {Economics Letters},
+  volume = {237},
+  pages = {111671},
   year = {2024},
   doi = {10.1016/j.econlet.2024.111671}
 }
